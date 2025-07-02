@@ -17,6 +17,10 @@ app.use("/api/v1", router);
 app.get("/", async (req, res) => {
 	res.send("Server is running!..");
 });
+app.get("/health", async (req, res) => {
+	res.send("✅ Server Healthy");
+});
+
 
 app.use(errorHandler);
 

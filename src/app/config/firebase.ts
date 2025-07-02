@@ -1,13 +1,14 @@
-import admin from 'firebase-admin'
+import admin from 'firebase-admin';
+import firebaseConfig from './serviceAccountKey.json';
 
-import firebaseConfig from './serviceAccountKey.json'
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(firebaseConfig as admin.ServiceAccount),
+  });
+}
 
-admin.initializeApp({
-  credential: admin.credential.cert(firebaseConfig as admin.ServiceAccount)
-})
+const db = admin.firestore();
 
-const db = admin.firestore()
+console.log('🔥 Firestore connected successfully ✅');
 
-console.log('🔥 Firestore connected successfully ✅')
-
-export default db
+export default db;

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { AuthService } from '../auth/services/authService';
+import { AuthService } from './../modules/auth/authService';
 
 const authService = AuthService.getInstance();
 
