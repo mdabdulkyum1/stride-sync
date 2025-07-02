@@ -1,6 +1,7 @@
 import { Server } from "http";
 import app from "./app";
 import config from "./app/config";
+import "./app/config/firebase";
 
 let server: Server;
 

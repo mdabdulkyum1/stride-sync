@@ -14,7 +14,7 @@ export default {
   },
 
   firebase: {
-    config: process.env.FIREBASE_CONFIG, 
+    config: JSON.parse(process.env.FIREBASE_CONFIG || '{}'), 
   },
 
   jwt: {
