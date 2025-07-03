@@ -21,7 +21,7 @@ export class AuthService {
   }
 
   public getAuthUrl(): string {
-    const scope = 'activity:read';
+    const scope = 'activity:read_all';
     return `https://www.strava.com/oauth/authorize?client_id=${strava.clientId}&response_type=code&scope=${scope}&redirect_uri=${process.env.STRAVA_REDIRECT_URI}`;
   }
 
