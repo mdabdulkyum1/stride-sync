@@ -20,6 +20,9 @@ app.get("/", async (req, res) => {
 app.get("/health", async (req, res) => {
 	res.send("✅ Server Healthy");
 });
+app.get("/dashboard", async (req, res) => {
+	res.send("✅ login success");
+});
 
 
 app.use(errorHandler);
