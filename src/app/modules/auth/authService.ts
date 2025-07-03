@@ -25,8 +25,8 @@ export class AuthService {
     return `https://www.strava.com/oauth/authorize?client_id=${strava.clientId}&response_type=code&scope=${scope}&redirect_uri=${process.env.STRAVA_REDIRECT_URI}`;
   }
 
-  public async getTokens(code: string): Promise<void> {
-    console.log(code, 'code here');
+  public async getTokens(code: string) {
+
     try {
       const tokenResponse = await axios.post('https://www.strava.com/oauth/token', {
         client_id: strava.clientId,
