@@ -3,6 +3,12 @@ import app from "./app";
 import config from "./app/config";
 import "./app/config/firebase";
 
+// Import all cron jobs
+import "./app/jobs/syncActivities";
+import "./app/jobs/cleanupJobs";
+import "./app/jobs/notificationJobs";
+import "./app/jobs/analyticsJobs";
+
 let server: Server;
 
 const main = async () => {
