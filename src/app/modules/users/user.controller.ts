@@ -47,7 +47,7 @@ const getUserById = catchAsync(async (req: AuthenticatedRequest, res: Response, 
 
   sendResponse(res, {
     statusCode: 200,
-    message: response.message,
+    message: response.message as string,
     data: response.data,
   });
 });
@@ -81,7 +81,7 @@ const getUserByEmail = catchAsync(async (req: AuthenticatedRequest, res: Respons
 
   sendResponse(res, {
     statusCode: 200,
-    message: response.message,
+    message: response.message as string,
     data: response.data,
   });
 });
@@ -108,7 +108,7 @@ const getAllUsers = catchAsync(async (req: AuthenticatedRequest, res: Response, 
 
   sendResponse(res, {
     statusCode: 200,
-    message: response.message,
+    message: response.message as string,
     data: response.data,
   });
 });
@@ -146,7 +146,7 @@ const updateUser = catchAsync(async (req: AuthenticatedRequest, res: Response, n
 
   sendResponse(res, {
     statusCode: 200,
-    message: response.message,
+    message: response.message as string,
     data: response.data,
   });
 });
@@ -172,7 +172,7 @@ const deleteUser = catchAsync(async (req: AuthenticatedRequest, res: Response, n
 
   sendResponse(res, {
     statusCode: 200,
-    message: response.message,
+    message: response.message as string,
   });
 });
 
@@ -197,7 +197,7 @@ const hardDeleteUser = catchAsync(async (req: AuthenticatedRequest, res: Respons
 
   sendResponse(res, {
     statusCode: 200,
-    message: response.message,
+    message: response.message as string,
   });
 });
 
@@ -230,7 +230,7 @@ const getUserDashboard = catchAsync(async (req: AuthenticatedRequest, res: Respo
 
   sendResponse(res, {
     statusCode: 200,
-    message: response.message,
+    message: response.message as string,
     data: response.data,
   });
 });
@@ -256,7 +256,7 @@ const updateLastLogin = catchAsync(async (req: AuthenticatedRequest, res: Respon
 
   sendResponse(res, {
     statusCode: 200,
-    message: response.message,
+    message: response.message as string,
   });
 });
 
@@ -273,7 +273,7 @@ const getUserCount = catchAsync(async (req: AuthenticatedRequest, res: Response,
 
   sendResponse(res, {
     statusCode: 200,
-    message: response.message,
+    message: response.message as string,
     data: response.data,
   });
 });
@@ -305,7 +305,7 @@ const searchUsers = catchAsync(async (req: AuthenticatedRequest, res: Response, 
 
   sendResponse(res, {
     statusCode: 200,
-    message: response.message,
+    message: response.message as string,
     data: response.data,
   });
 });

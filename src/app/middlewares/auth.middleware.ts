@@ -40,8 +40,8 @@ export const generateTokens = (user: User) => {
       role: user.role,
       stravaId: user.stravaId 
     },
-    config.jwt.accessSecret,
-    { expiresIn: config.jwt.accessExpiresIn }
+    config.jwt.accessSecret as jwt.Secret,
+    { expiresIn: config.jwt.accessExpiresIn as jwt.SignOptions['expiresIn'] }
   );
 
   const refreshToken = jwt.sign(
@@ -50,8 +50,8 @@ export const generateTokens = (user: User) => {
       email: user.email, 
       role: user.role 
     },
-    config.jwt.refreshSecret,
-    { expiresIn: config.jwt.refreshExpiresIn }
+    config.jwt.refreshSecret as jwt.Secret,
+    { expiresIn: config.jwt.refreshExpiresIn as jwt.SignOptions['expiresIn'] }
   );
 
   return { accessToken, refreshToken };
@@ -68,11 +68,12 @@ export const authenticateToken = async (
     const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
     if (!token) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: 'Access token is required',
         timestamp: Date.now(),
       });
+      return;
     }
 
     // Verify token
@@ -82,21 +83,23 @@ export const authenticateToken = async (
     const userDoc = await db.collection('users').doc(decoded.id).get();
     
     if (!userDoc.exists) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: 'User not found',
         timestamp: Date.now(),
       });
+      return;
     }
 
     const user = userDoc.data() as User;
     
     if (!user.isActive) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: 'User account is deactivated',
         timestamp: Date.now(),
       });
+      return;
     }
 
     // Attach user to request
@@ -112,26 +115,29 @@ export const authenticateToken = async (
     console.error('Authentication error:', error);
     
     if (error instanceof jwt.TokenExpiredError) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: 'Token expired',
         timestamp: Date.now(),
       });
+      return;
     }
     
     if (error instanceof jwt.JsonWebTokenError) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: 'Invalid token',
         timestamp: Date.now(),
       });
+      return;
     }
 
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: 'Authentication failed',
       timestamp: Date.now(),
     });
+    return;
   }
 };
 
@@ -179,19 +185,21 @@ export const optionalAuth = async (
 export const requireRole = (roles: string[]) => {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: 'Authentication required',
         timestamp: Date.now(),
       });
+      return;
     }
 
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({
+      res.status(403).json({
         success: false,
         message: `Access denied. Required roles: ${roles.join(', ')}`,
         timestamp: Date.now(),
       });
+      return;
     }
 
     next();
@@ -214,11 +222,12 @@ export const refreshToken = async (
     const { refreshToken } = req.body;
 
     if (!refreshToken) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Refresh token is required',
         timestamp: Date.now(),
       });
+      return;
     }
 
     // Verify refresh token
@@ -228,21 +237,23 @@ export const refreshToken = async (
     const userDoc = await db.collection('users').doc(decoded.id).get();
     
     if (!userDoc.exists) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: 'User not found',
         timestamp: Date.now(),
       });
+      return;
     }
 
     const user = userDoc.data() as User;
     
     if (!user.isActive) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: 'User account is deactivated',
         timestamp: Date.now(),
       });
+      return;
     }
 
     // Generate new tokens

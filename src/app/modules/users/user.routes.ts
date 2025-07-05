@@ -4,23 +4,20 @@ import { authenticateToken, requireAdmin, requireUserOrAdmin } from '../../middl
 
 const router = express.Router();
 
-// Protected user routes (require authentication)
-router.use(authenticateToken);
-
-// Admin-only routes
-router.get('/search', requireAdmin, userController.searchUsers);
-router.get('/count', requireAdmin, userController.getUserCount);
-router.get('/email', requireAdmin, userController.getUserByEmail);
-router.get('/:userId', requireAdmin, userController.getUserById);
-router.put('/:userId', requireAdmin, userController.updateUser);
-router.delete('/:userId', requireAdmin, userController.deleteUser);
-router.delete('/:userId/hard', requireAdmin, userController.hardDeleteUser);
+// Admin-only routes (require authentication + admin role)
+router.get('/search', authenticateToken, requireAdmin, userController.searchUsers);
+router.get('/count', authenticateToken, requireAdmin, userController.getUserCount);
+router.get('/email', authenticateToken, requireAdmin, userController.getUserByEmail);
+router.get('/:userId', authenticateToken, requireAdmin, userController.getUserById);
+router.put('/:userId', authenticateToken, requireAdmin, userController.updateUser);
+router.delete('/:userId', authenticateToken, requireAdmin, userController.deleteUser);
+router.delete('/:userId/hard', authenticateToken, requireAdmin, userController.hardDeleteUser);
 
 // Dashboard routes (user can access their own dashboard)
-router.get('/:userId/dashboard', requireUserOrAdmin, userController.getUserDashboard);
-router.get('/dashboard', requireUserOrAdmin, userController.getUserDashboard); // Current user dashboard
+router.get('/:userId/dashboard', authenticateToken, requireUserOrAdmin, userController.getUserDashboard);
+router.get('/dashboard', authenticateToken, requireUserOrAdmin, userController.getUserDashboard); // Current user dashboard
 
 // User management routes
-router.post('/login/update', requireUserOrAdmin, userController.updateLastLogin);
+router.post('/login/update', authenticateToken, requireUserOrAdmin, userController.updateLastLogin);
 
 export const userRoutes = router; 
