@@ -135,34 +135,12 @@
     <script>
         function loginWithStrava() {
             // Redirect to Strava OAuth endpoint
-            window.location.href = '/api/v1/auth/strava';
+            window.location.href = 'http://localhost:5000/api/v1/auth/strava';
         }
         
-        // Check if user is returning from OAuth callback
-        const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
-        
-        if (code) {
-            // Handle OAuth callback
-            handleOAuthCallback(code);
-        }
-        
-        function handleOAuthCallback(code) {
-            // This would typically be handled by your backend
-            // For demo purposes, we'll just show a success message
-            document.querySelector('.container').innerHTML = `
-                <div class="logo">🎉</div>
-                <div class="tagline">Authentication Successful!</div>
-                <div class="info">
-                    You've successfully connected your Strava account.<br>
-                    Redirecting to dashboard...
-                </div>
-            `;
-            
-            // Redirect to dashboard after a short delay
-            setTimeout(() => {
-                window.location.href = '/dashboard';
-            }, 2000);
+        // Check if user is already logged in
+        if (localStorage.getItem('accessToken')) {
+            window.location.href = '/dashboard.html';
         }
     </script>
 </body>

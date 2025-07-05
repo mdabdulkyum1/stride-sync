@@ -3,15 +3,7 @@ import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { AdminService } from './admin.service';
 import { ApiResponse, AdminConfig, AdminExportData, ExportOptions, Analytics } from '../../interface/types';
-
-// Extend Request interface to include user
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    email: string;
-    role: string;
-  };
-}
+import { AuthenticatedRequest } from '../../middlewares/auth.middleware';
 
 const adminService = AdminService.getInstance();
 
@@ -317,6 +309,74 @@ const updateFeatures = catchAsync(async (req: AuthenticatedRequest, res: Respons
   });
 });
 
+// Admin Dashboard Analytics
+const getDashboardStats = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const stats = await adminService.getDashboardStats();
+    
+    return sendResponse(res, {
+      success: true,
+      message: 'Dashboard stats retrieved successfully',
+      data: stats,
+    });
+  } catch (error) {
+    console.error('Error getting dashboard stats:', error);
+    return sendResponse(res, {
+      success: false,
+      message: 'Failed to get dashboard stats',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }, 500);
+  }
+};
+
+// Get user registrations chart data (last 30 days)
+const getUserRegistrationsChart = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const chartData = await adminService.getUserRegistrationsChart();
+    
+    return sendResponse(res, {
+      success: true,
+      message: 'User registrations chart data retrieved successfully',
+      data: chartData,
+    });
+  } catch (error) {
+    console.error('Error getting user registrations chart:', error);
+    return sendResponse(res, {
+      success: false,
+      message: 'Failed to get user registrations chart',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }, 500);
+  }
+};
+
+// Get all users with pagination and filters
+const getAllUsers = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { page = 1, limit = 10, search, role, isActive } = req.query;
+    
+    const users = await adminService.getAllUsers({
+      page: Number(page),
+      limit: Number(limit),
+      search: search as string,
+      role: role as string,
+      isActive: isActive === 'true' ? true : isActive === 'false' ? false : undefined,
+    });
+    
+    return sendResponse(res, {
+      success: true,
+      message: 'Users retrieved successfully',
+      data: users,
+    });
+  } catch (error) {
+    console.error('Error getting all users:', error);
+    return sendResponse(res, {
+      success: false,
+      message: 'Failed to get users',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }, 500);
+  }
+};
+
 export const adminController = {
   createAdminConfig,
   getAdminConfig,
@@ -328,4 +388,7 @@ export const adminController = {
   updateBrandLogo,
   updateGoals,
   updateFeatures,
+  getDashboardStats,
+  getUserRegistrationsChart,
+  getAllUsers,
 }; 

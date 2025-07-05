@@ -4,26 +4,31 @@ import { authenticateToken, requireAdmin } from '../../middlewares/auth.middlewa
 
 const router = express.Router();
 
-// Protected admin routes (require authentication and admin role)
+// All admin routes require authentication and admin role
 router.use(authenticateToken);
 router.use(requireAdmin);
 
-// Admin configuration routes
+// Admin Dashboard Routes
+router.get('/dashboard/stats', adminController.getDashboardStats);
+router.get('/dashboard/registrations-chart', adminController.getUserRegistrationsChart);
+router.get('/users', adminController.getAllUsers);
+
+// Admin Configuration Routes
 router.post('/config', adminController.createAdminConfig);
 router.get('/config', adminController.getAdminConfig);
 router.put('/config', adminController.updateAdminConfig);
 
-// Export routes
-router.get('/export', adminController.exportUsersData);
-router.get('/export/csv', adminController.generateCSVExport);
+// Export Routes
+router.get('/export/users', adminController.exportUsersData);
+router.get('/export/users/csv', adminController.generateCSVExport);
 
-// Analytics routes
+// Analytics Routes
 router.get('/analytics', adminController.getAnalytics);
 
-// Content management routes
-router.put('/motivational-text', adminController.updateMotivationalText);
-router.put('/brand-logo', adminController.updateBrandLogo);
-router.put('/goals', adminController.updateGoals);
-router.put('/features', adminController.updateFeatures);
+// Content Management Routes
+router.put('/content/motivational-text', adminController.updateMotivationalText);
+router.put('/content/brand-logo', adminController.updateBrandLogo);
+router.put('/content/goals', adminController.updateGoals);
+router.put('/content/features', adminController.updateFeatures);
 
 export const adminRoutes = router; 

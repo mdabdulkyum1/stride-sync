@@ -32,8 +32,8 @@ const getCallback = catchAsync(async (req, res, next) => {
       });
     }
     
-    // For web redirects, redirect to dashboard
-    res.redirect("/dashboard");
+    // For web redirects, redirect to dashboard with tokens
+    res.redirect(`/dashboard.html?accessToken=${result.tokens.accessToken}&refreshToken=${result.tokens.refreshToken}`);
 
   } else {
 

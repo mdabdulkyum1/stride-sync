@@ -18,6 +18,8 @@ router.get('/:userId/dashboard', authenticateToken, requireUserOrAdmin, userCont
 router.get('/dashboard', authenticateToken, requireUserOrAdmin, userController.getUserDashboard); // Current user dashboard
 
 // User management routes
+router.get('/profile', authenticateToken, userController.getUserProfile);
+router.get('/dashboard', authenticateToken, userController.getUserDashboardData);
 router.post('/login/update', authenticateToken, requireUserOrAdmin, userController.updateLastLogin);
 
 export const userRoutes = router; 

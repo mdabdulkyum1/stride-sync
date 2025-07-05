@@ -179,80 +179,45 @@ export class UserService {
   }
 
   // Get user dashboard data
-  async getUserDashboard(userId: string): Promise<DashboardData | null> {
+  async getUserDashboard(userId: string): Promise<{
+    totalActivities: number;
+    totalDistance: number;
+    monthlyProgress: number;
+    averagePace: number;
+    recentActivities: any[];
+  }> {
     try {
-      const user = await this.getUserById(userId);
-      if (!user) {
-        return null;
-      }
-
-      // Get user progress
-      const progressDoc = await db.collection('users').doc(userId).collection('progress').doc('current').get();
-      const progress = progressDoc.exists ? progressDoc.data() as Progress : null;
-
-      // Get recent activities
+      // Get user's activities
       const activitiesSnapshot = await db.collection('users').doc(userId).collection('activities')
         .orderBy('date', 'desc')
-        .limit(5)
         .get();
+
+      const activities = activitiesSnapshot.docs.map(doc => doc.data());
       
-      const recentActivities = activitiesSnapshot.docs.map(doc => doc.data() as any);
+      // Calculate totals
+      const totalActivities = activities.length;
+      const totalDistance = activities.reduce((sum, activity) => sum + (activity.distance || 0), 0);
+      
+      // Calculate average pace
+      const activitiesWithPace = activities.filter(activity => activity.averagePace);
+      const averagePace = activitiesWithPace.length > 0 
+        ? activitiesWithPace.reduce((sum, activity) => sum + activity.averagePace, 0) / activitiesWithPace.length
+        : 0;
 
-      // Get admin config for dashboard
-      const configDoc = await db.collection('admin').doc('config').get();
-      const adminConfig = configDoc.exists ? configDoc.data() as AdminConfig : null;
+      // Calculate monthly progress (simplified - assume 26.2km monthly goal)
+      const monthlyGoal = 26.2;
+      const monthlyProgress = Math.min((totalDistance / monthlyGoal) * 100, 100);
 
-      const dashboardData: DashboardData = {
-        user,
-        progress: progress || {
-          userId,
-          monthlyMileage: 0,
-          seasonalMileage: 0,
-          monthlyGoal: 26.2,
-          seasonalGoal: 78.6,
-          monthlyProgress: 0,
-          seasonalProgress: 0,
-          lastUpdated: Date.now(),
-          totalActivities: 0,
-          averagePace: 0,
-          longestRun: 0,
-        },
+      // Get recent activities (last 5)
+      const recentActivities = activities.slice(0, 5);
+
+      return {
+        totalActivities,
+        totalDistance: Math.round(totalDistance * 100) / 100,
+        monthlyProgress: Math.round(monthlyProgress),
+        averagePace: Math.round(averagePace * 10) / 10,
         recentActivities,
-        monthlyGoal: {
-          id: 'default',
-          userId,
-          type: 'monthly',
-          target: 26.2,
-          current: 0,
-          startDate: new Date().toISOString(),
-          endDate: new Date().toISOString(),
-          isCompleted: false,
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
-          month: new Date().getMonth() + 1,
-          year: new Date().getFullYear(),
-        },
-        seasonalGoal: {
-          id: 'default',
-          userId,
-          type: 'seasonal',
-          target: 78.6,
-          current: 0,
-          startDate: new Date().toISOString(),
-          endDate: new Date().toISOString(),
-          isCompleted: false,
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
-          season: 'Spring',
-          year: new Date().getFullYear(),
-        },
-        achievements: [],
-        motivationalText: adminConfig?.motivationalText || 'Keep pushing your limits!',
-        brandLogo: adminConfig?.brandLogo?.url || '',
-        dashboardTitle: adminConfig?.dashboardTitle || 'Your Fitness Journey',
       };
-
-      return dashboardData;
     } catch (error) {
       console.error('Error getting user dashboard:', error);
       throw new Error('Failed to get user dashboard');

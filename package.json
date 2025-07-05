@@ -6,7 +6,16 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
-    "test": "jest"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:verbose": "jest --verbose",
+    "test:auth": "jest --testPathPattern=auth.test.ts",
+    "test:user": "jest --testPathPattern=user.test.ts",
+    "test:admin": "jest --testPathPattern=admin.test.ts",
+    "test:activities": "jest --testPathPattern=activities.test.ts",
+    "test:middleware": "jest --testPathPattern=middleware.test.ts",
+    "test:utils": "jest --testPathPattern=utils.test.ts"
   },
   "keywords": [],
   "author": "",

@@ -310,6 +310,73 @@ const searchUsers = catchAsync(async (req: AuthenticatedRequest, res: Response, 
   });
 });
 
+// Get current user's profile
+const getUserProfile = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return sendResponse(res, {
+        statusCode: 401,
+        message: 'User not authenticated',
+      });
+    }
+
+    const user = await userService.getUserById(req.user.id);
+    
+    if (!user) {
+      return sendResponse(res, {
+        statusCode: 404,
+        message: 'User not found',
+      });
+    }
+
+          return sendResponse(res, {
+        statusCode: 200,
+        message: 'User profile retrieved successfully',
+        data: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          stravaId: user.stravaId,
+          createdAt: user.createdAt,
+          lastLoginAt: user.lastLoginAt,
+        },
+      });
+  } catch (error) {
+    console.error('Error getting user profile:', error);
+          return sendResponse(res, {
+        statusCode: 500,
+        message: 'Failed to get user profile',
+      });
+  }
+};
+
+// Get current user's dashboard data
+const getUserDashboardData = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return sendResponse(res, {
+        statusCode: 401,
+        message: 'User not authenticated',
+      });
+    }
+
+    const dashboardData = await userService.getUserDashboard(req.user.id);
+    
+    return sendResponse(res, {
+      statusCode: 200,
+      message: 'Dashboard data retrieved successfully',
+      data: dashboardData,
+    });
+  } catch (error) {
+    console.error('Error getting user dashboard:', error);
+    return sendResponse(res, {
+      statusCode: 500,
+      message: 'Failed to get dashboard data',
+    });
+  }
+};
+
 export const userController = {
   getUserById,
   getUserByEmail,
@@ -321,4 +388,6 @@ export const userController = {
   updateLastLogin,
   getUserCount,
   searchUsers,
+  getUserProfile,
+  getUserDashboardData,
 }; 

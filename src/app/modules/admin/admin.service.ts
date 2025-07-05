@@ -380,4 +380,179 @@ export class AdminService {
     if (month >= 9 && month <= 11) return 'Fall';
     return 'Winter';
   }
+
+  // Get dashboard statistics
+  async getDashboardStats(): Promise<{
+    totalUsers: number;
+    totalActivities: number;
+    totalDistance: number;
+    activeUsers: number;
+    newUsersThisMonth: number;
+  }> {
+    try {
+      // Get total users
+      const usersSnapshot = await db.collection('users').get();
+      const totalUsers = usersSnapshot.size;
+
+      // Get active users (users with activities in last 30 days)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      const activeUsersSnapshot = await db.collection('users')
+        .where('lastActivityAt', '>=', thirtyDaysAgo)
+        .get();
+      const activeUsers = activeUsersSnapshot.size;
+
+      // Get new users this month
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+      
+      const newUsersSnapshot = await db.collection('users')
+        .where('createdAt', '>=', startOfMonth)
+        .get();
+      const newUsersThisMonth = newUsersSnapshot.size;
+
+      // Get total activities and distance
+      let totalActivities = 0;
+      let totalDistance = 0;
+
+      const activitiesSnapshot = await db.collectionGroup('activities').get();
+      activitiesSnapshot.forEach(doc => {
+        const activity = doc.data();
+        totalActivities++;
+        totalDistance += activity.distance || 0;
+      });
+
+      return {
+        totalUsers,
+        totalActivities,
+        totalDistance: Math.round(totalDistance * 100) / 100, // Round to 2 decimal places
+        activeUsers,
+        newUsersThisMonth,
+      };
+    } catch (error) {
+      console.error('Error getting dashboard stats:', error);
+      throw new Error('Failed to get dashboard stats');
+    }
+  }
+
+  // Get user registrations chart data (last 30 days)
+  async getUserRegistrationsChart(): Promise<{
+    dates: string[];
+    registrations: number[];
+  }> {
+    try {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      const usersSnapshot = await db.collection('users')
+        .where('createdAt', '>=', thirtyDaysAgo)
+        .orderBy('createdAt', 'asc')
+        .get();
+
+      // Group users by date
+      const registrationsByDate: { [key: string]: number } = {};
+      
+      // Initialize all dates in the last 30 days
+      for (let i = 29; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        registrationsByDate[dateStr] = 0;
+      }
+
+      // Count registrations by date
+      usersSnapshot.forEach(doc => {
+        const user = doc.data();
+        const createdAt = user.createdAt?.toDate?.() || new Date(user.createdAt);
+        const dateStr = createdAt.toISOString().split('T')[0];
+        
+        if (registrationsByDate[dateStr] !== undefined) {
+          registrationsByDate[dateStr]++;
+        }
+      });
+
+      const dates = Object.keys(registrationsByDate).sort();
+      const registrations = dates.map(date => registrationsByDate[date]);
+
+      return {
+        dates,
+        registrations,
+      };
+    } catch (error) {
+      console.error('Error getting user registrations chart:', error);
+      throw new Error('Failed to get user registrations chart');
+    }
+  }
+
+  // Get all users with pagination and filters
+  async getAllUsers(options: {
+    page: number;
+    limit: number;
+    search?: string;
+    role?: string;
+    isActive?: boolean;
+  }): Promise<{
+    users: User[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    try {
+      const { page, limit, search, role, isActive } = options;
+      
+      let query: any = db.collection('users');
+
+      // Apply filters
+      if (isActive !== undefined) {
+        query = query.where('isActive', '==', isActive);
+      }
+      
+      if (role) {
+        query = query.where('role', '==', role);
+      }
+
+      // Get total count
+      const totalSnapshot = await query.get();
+      const total = totalSnapshot.size;
+
+      // Apply pagination
+      const offset = (page - 1) * limit;
+      query = query.orderBy('createdAt', 'desc').limit(limit).offset(offset);
+
+      const usersSnapshot = await query.get();
+      const users: User[] = [];
+      
+      usersSnapshot.forEach((doc: any) => {
+        const user = doc.data() as User;
+        user.id = doc.id;
+        users.push(user);
+      });
+
+      // Apply search filter if provided
+      let filteredUsers = users;
+      if (search) {
+        const searchLower = search.toLowerCase();
+        filteredUsers = users.filter(user => 
+          user.name?.toLowerCase().includes(searchLower) ||
+          user.email?.toLowerCase().includes(searchLower)
+        );
+      }
+
+      const totalPages = Math.ceil(total / limit);
+
+      return {
+        users: filteredUsers,
+        total,
+        page,
+        limit,
+        totalPages,
+      };
+    } catch (error) {
+      console.error('Error getting all users:', error);
+      throw new Error('Failed to get all users');
+    }
+  }
 } 
