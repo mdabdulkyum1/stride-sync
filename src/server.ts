@@ -1,9 +1,11 @@
 import { Server } from "http";
 import app from "./app";
 import config from "./app/config";
+
+// Initialize Firebase first before any other imports
 import "./app/config/firebase";
 
-// Import all cron jobs
+// Import all cron jobs after Firebase initialization
 import "./app/jobs/syncActivities";
 import "./app/jobs/cleanupJobs";
 import "./app/jobs/notificationJobs";

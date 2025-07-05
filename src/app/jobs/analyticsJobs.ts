@@ -1,7 +1,5 @@
 import cron from 'node-cron';
-import admin from 'firebase-admin';
-
-const db = admin.firestore();
+import db from '../config/firebase';
 
 // Generate daily analytics and insights
 const generateDailyAnalytics = async () => {

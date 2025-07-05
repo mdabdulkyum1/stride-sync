@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import config from '../config';
 import { User } from '../interface/types';
-import admin from 'firebase-admin';
+import db from '../config/firebase';
 
 // Extend Request interface to include user
 export interface AuthenticatedRequest extends Request {
@@ -13,8 +13,6 @@ export interface AuthenticatedRequest extends Request {
     stravaId?: string;
   };
 }
-
-const db = admin.firestore();
 
 // Verify JWT token
 const verifyToken = (token: string): Promise<any> => {

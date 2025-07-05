@@ -3,7 +3,7 @@ import sendResponse from "../../utils/sendResponse";
 import { AuthService } from "./authService";
 import { refreshToken } from "../../middlewares/auth.middleware";
 import { AuthenticatedRequest } from "../../middlewares/auth.middleware";
-import admin from "firebase-admin";
+import db from "../../config/firebase";
 
 const authService = AuthService.getInstance();
 
@@ -60,7 +60,6 @@ const refreshTokenController = catchAsync(async (req, res, next) => {
 const logoutController = catchAsync(async (req: AuthenticatedRequest, res, next) => {
   try {
     if (req.user) {
-      const db = admin.firestore();
       // Update last logout time
       await db.collection('users').doc(req.user.id).update({
         lastLogoutAt: Date.now(),

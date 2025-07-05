@@ -1,9 +1,7 @@
 import cron from 'node-cron';
-import admin from 'firebase-admin';
 import axios from 'axios';
 import config from '../config';
-
-const db = admin.firestore();
+import db from '../config/firebase';
 
 // Sync Strava activities for all users
 const syncAllUsersActivities = async () => {
