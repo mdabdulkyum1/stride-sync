@@ -1,6 +1,7 @@
 import axios from 'axios';
 import config from '../../config';
 import admin from 'firebase-admin';
+import { generateTokens } from '../../middlewares/auth.middleware';
 
 const { strava } = config;
 
@@ -52,21 +53,51 @@ export class AuthService {
       const userRef = db.collection('users').doc(this.userId!);
       const userDoc = await userRef.get();
 
+      const userData = {
+        id: this.userId!,
+        accessToken: this.token,
+        refreshToken: this.refreshToken,
+        tokenExpiry: this.tokenExpiry,
+        email: athlete.email ?? null, 
+        name: `${athlete.firstname} ${athlete.lastname}`,
+        role: "user" as const,
+        stravaId: athlete.id.toString(),
+        isActive: true,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      };
       
       if (!userDoc.exists) {
-        await userRef.set({
+        await userRef.set(userData, { merge: true });
+        console.log(`✅ New user created: ${this.userId}`);
+      } else {
+        // Update existing user with new tokens
+        await userRef.update({
           accessToken: this.token,
           refreshToken: this.refreshToken,
           tokenExpiry: this.tokenExpiry,
-          email: athlete.email ?? null, 
-          name: `${athlete.firstname} ${athlete.lastname}`,
-          role: "user",
-          createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        }, { merge: true });
-
-      } else {
+          lastLoginAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
         console.log(`ℹ️ User already exists in Firestore: ${this.userId}`);
       }
+
+      // Generate JWT tokens
+      const jwtUserData = {
+        id: this.userId!,
+        email: athlete.email ?? null, 
+        name: `${athlete.firstname} ${athlete.lastname}`,
+        role: "user" as const,
+        stravaId: athlete.id.toString(),
+        isActive: true,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      };
+      
+      const jwtTokens = generateTokens(jwtUserData);
+      
+      return {
+        user: userData,
+        tokens: jwtTokens,
+      };
     } catch (error: any) {
       console.error('❌ Token exchange failed:', error?.message || error);
       throw new Error('Authentication failed');
