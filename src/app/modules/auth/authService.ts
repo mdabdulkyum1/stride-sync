@@ -77,7 +77,7 @@ export class AuthService {
           tokenExpiry: this.tokenExpiry,
           lastLoginAt: admin.firestore.FieldValue.serverTimestamp(),
         });
-        console.log(`ℹ️ User already exists in Firestore: ${this.userId}`);
+        
       }
 
       // Generate JWT tokens
