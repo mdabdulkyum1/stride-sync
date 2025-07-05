@@ -15,32 +15,8 @@ export class UserService {
     return UserService.instance;
   }
 
-  // CREATE - Create new user
-  async createUser(userData: Partial<User>): Promise<User> {
-    try {
-      const userId = userData.id || db.collection('users').doc().id;
-      const userRef = db.collection('users').doc(userId);
-      
-      const newUser: User = {
-        id: userId,
-        name: userData.name || '',
-        email: userData.email || '',
-        role: userData.role || 'user',
-        createdAt: Date.now(),
-        stravaId: userData.stravaId,
-        profilePicture: userData.profilePicture,
-        shopifyCustomerId: userData.shopifyCustomerId,
-        isActive: userData.isActive ?? true,
-        lastLoginAt: userData.lastLoginAt,
-      };
-
-      await userRef.set(newUser);
-      return newUser;
-    } catch (error) {
-      console.error('Error creating user:', error);
-      throw new Error('Failed to create user');
-    }
-  }
+  // CREATE - Create new user (REMOVED - Only Strava OAuth login allowed)
+  // Users are created automatically when they authenticate with Strava
 
   // READ - Get user by ID
   async getUserById(userId: string): Promise<User | null> {

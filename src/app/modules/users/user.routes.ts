@@ -8,7 +8,6 @@ const router = express.Router();
 router.use(authenticateToken);
 
 // Admin-only routes
-router.post('/', requireAdmin, userController.createUser);
 router.get('/search', requireAdmin, userController.searchUsers);
 router.get('/count', requireAdmin, userController.getUserCount);
 router.get('/email', requireAdmin, userController.getUserByEmail);

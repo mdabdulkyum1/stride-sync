@@ -15,25 +15,8 @@ interface AuthenticatedRequest extends Request {
 
 const userService = UserService.getInstance();
 
-// CREATE - Create new user
-const createUser = catchAsync(async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  const userData = req.body;
-  
-  const newUser = await userService.createUser(userData);
-  
-  const response: ApiResponse<User> = {
-    success: true,
-    data: newUser,
-    message: 'User created successfully',
-    timestamp: Date.now(),
-  };
-
-  sendResponse(res, {
-    statusCode: 201,
-    message: response.message,
-    data: response.data,
-  });
-});
+// CREATE - Create new user (REMOVED - Only Strava OAuth login allowed)
+// Users are created automatically when they authenticate with Strava
 
 // READ - Get user by ID
 const getUserById = catchAsync(async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
@@ -328,7 +311,6 @@ const searchUsers = catchAsync(async (req: AuthenticatedRequest, res: Response, 
 });
 
 export const userController = {
-  createUser,
   getUserById,
   getUserByEmail,
   getAllUsers,

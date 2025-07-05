@@ -1,6 +1,6 @@
 import axios from 'axios';
 import config from '../../config';
-import admin from 'firebase-admin';
+import db from '../../config/firebase';
 import { generateTokens } from '../../middlewares/auth.middleware';
 
 const { strava } = config;
@@ -49,7 +49,6 @@ export class AuthService {
       const athlete = userResponse.data;
       this.userId = athlete.id.toString();
 
-      const db = admin.firestore();
       const userRef = db.collection('users').doc(this.userId!);
       const userDoc = await userRef.get();
 
@@ -63,7 +62,7 @@ export class AuthService {
         role: "user" as const,
         stravaId: athlete.id.toString(),
         isActive: true,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        createdAt: Date.now(),
       };
       
       if (!userDoc.exists) {
@@ -75,7 +74,7 @@ export class AuthService {
           accessToken: this.token,
           refreshToken: this.refreshToken,
           tokenExpiry: this.tokenExpiry,
-          lastLoginAt: admin.firestore.FieldValue.serverTimestamp(),
+          lastLoginAt: Date.now(),
         });
         
       }
@@ -118,7 +117,6 @@ export class AuthService {
         this.refreshToken = tokenResponse.data.refresh_token || this.refreshToken;
         this.tokenExpiry = Date.now() + tokenResponse.data.expires_in * 1000;
 
-        const db = admin.firestore();
         await db.collection('users').doc(this.userId).update({
           accessToken: this.token,
           refreshToken: this.refreshToken,

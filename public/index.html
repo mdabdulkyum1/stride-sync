@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stride Sync - Strava OAuth Login</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .tagline {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        
+        .strava-btn {
+            background: #FC4C02;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        .strava-btn:hover {
+            background: #E64402;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(252, 76, 2, 0.3);
+        }
+        
+        .strava-btn:active {
+            transform: translateY(0);
+        }
+        
+        .features {
+            margin-top: 30px;
+            text-align: left;
+        }
+        
+        .feature {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            color: #555;
+        }
+        
+        .feature-icon {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🏃‍♂️ Stride Sync</div>
+        <div class="tagline">Sync your Strava activities and track your fitness journey</div>
+        
+        <button class="strava-btn" onclick="loginWithStrava()">
+            <span>🚴‍♂️</span>
+            Login with Strava
+        </button>
+        
+        <div class="features">
+            <div class="feature">
+                <span class="feature-icon">✅</span>
+                Automatic activity sync
+            </div>
+            <div class="feature">
+                <span class="feature-icon">📊</span>
+                Progress tracking
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🎯</span>
+                Goal setting
+            </div>
+            <div class="feature">
+                <span class="feature-icon">📱</span>
+                Mobile friendly
+            </div>
+        </div>
+        
+        <div class="info">
+            <strong>How it works:</strong><br>
+            1. Click "Login with Strava"<br>
+            2. Authorize with your Strava account<br>
+            3. Your activities will sync automatically<br>
+            4. Start tracking your fitness journey!
+        </div>
+    </div>
+
+    <script>
+        function loginWithStrava() {
+            // Redirect to Strava OAuth endpoint
+            window.location.href = '/api/v1/auth/strava';
+        }
+        
+        // Check if user is returning from OAuth callback
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        
+        if (code) {
+            // Handle OAuth callback
+            handleOAuthCallback(code);
+        }
+        
+        function handleOAuthCallback(code) {
+            // This would typically be handled by your backend
+            // For demo purposes, we'll just show a success message
+            document.querySelector('.container').innerHTML = `
+                <div class="logo">🎉</div>
+                <div class="tagline">Authentication Successful!</div>
+                <div class="info">
+                    You've successfully connected your Strava account.<br>
+                    Redirecting to dashboard...
+                </div>
+            `;
+            
+            // Redirect to dashboard after a short delay
+            setTimeout(() => {
+                window.location.href = '/dashboard';
+            }, 2000);
+        }
+    </script>
+</body>
+</html> 
